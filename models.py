@@ -49,8 +49,8 @@ class Artist(db.Model):
 # TODO Implement Show and Artist models, and complete all model relationships and properties, as a database migration.
 
 class Show(db.Model):
-	__tablename__ = 'shows'
-	id = db.Column(db.Integer, primary_key=True)
-	artist_id = db.Column(db.Integer, db.ForeignKey('artists.id'))
-	venue_id = db.Column(db.Integer, db.ForeignKey('venues.id'))
-	show_time = db.Column(db.DateTime(), nullable=False)
+    __tablename__ = 'shows'
+    id = db.Column(db.Integer, primary_key=True)
+    artist_id = db.Column(db.Integer, db.ForeignKey('artists.id'))
+    venue_id = db.Column(db.Integer, db.ForeignKey('venues.id'))
+    show_time = db.Column(db.DateTime(), nullable=False)
