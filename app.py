@@ -48,7 +48,11 @@ app.jinja_env.filters['datetime'] = format_datetime
 
 @app.route('/')
 def index():
-  return render_template('pages/home.html')
+  recent_artist = Artist.query.order_by(Artist.date_added).limit(10).all()
+  recent_venue = Venue.query.order_by(Venue.date_added).limit(10).all()
+  return render_template('pages/home.html',
+                          recent_artist=recent_artist,
+                          recent_venue=recent_venue)
 
 
 #  Venues
@@ -193,22 +197,33 @@ def create_venue_submission():
 
   # TODO: insert form data as a new Venue record in the db, instead
   # TODO: modify data to be the data object returned from db insertion
-	# form = VenueForm(request.form)
-	# if form.validate():
-	# 	trace = request.form.get
-	# 	try:
-	# 		print(request.form.getlist('genres'))
-	# 		new_venue = Venue(name=trace('name'), city=trace('city'), state=trace('state')
-	# 							phone=trace('phone'), genres=request.form.getlist('genres')
-	# 							)
+  trace = request.form.get
+  deets = VenueForm(request.form)
+  if deets.validate():
+    try:
+      new_venue =Venue(name=trace('name'), city=trace('city'),
+                            state=trace('state'), address=trace('address'),
+                            phone=trace('phone'), image_link=trace('image_link'),
+                            genres=request.form.getlist('genres'),
+                            facebook_link=trace('facebook_link'),
+                            website_link=trace('website_link'),
+                            seeking_artist=trace.seeking_talent.data,
+                            seeking_description=trace('seeking_description'))
+      db.session.add(new_venue)
+      db.session.commit()
+      # on successful db insert, flash success
+      flash('Venue ' + request.form['name'] + ' was successfully listed!')
+      return redirect(url_for('index'))
+    except:
+      # on unsuccessful db insert, flash an error instead.
+      db.session.rollback()
+      flash('ERROR!!!' + request.form['name'] + ' could not be listed.')
+      return redirect(url_for('index'))
+  else:
+    flash('Please do a re-check on form input')
+    return redirect(url_for('index'))
 
 
-  # on successful db insert, flash success
-  flash('Venue ' + request.form['name'] + ' was successfully listed!')
-  # TODO: on unsuccessful db insert, flash an error instead.
-  # e.g., flash('An error occurred. Venue ' + data.name + ' could not be listed.')
-  # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
-  return render_template('pages/home.html')
 
 @app.route('/venues/<venue_id>', methods=['DELETE'])
 def delete_venue(venue_id):
@@ -379,30 +394,7 @@ def edit_venue(venue_id):
 
 @app.route('/venues/<int:venue_id>/edit', methods=['POST'])
 def edit_venue_submission(venue_id):
-  trace = request.form.get
-  deets = VenueForm(request.form)
-  if deets.validate():
-    try:
-      new_artist =Venue(name=trace('name'), city=trace('city'),
-                            state=trace('state'), address=trace('address'),
-                            phone=trace('phone'), image_link=trace('image_link'),
-                            genres=request.form.getlist('genres'),
-                            facebook_link=trace('facebook_link'),
-                            website_link=trace('website_link'),
-                            seeking_artist=trace('seeking_artist'),
-                            seeking_description=trace('seeking_description'))
-      db.session.add(new_artist)
-      db.session.commit()
-      # on successful db insert, flash success
-      flash('Artist ' + request.form['name'] + ' was successfully listed!')
-      return redirect(url_for('index'))
-    except:
-      # on unsuccessful db insert, flash an error instead.
-      flash('ERROR!!!' + request.form['name'] + ' could not be listed.')
-      return redirect(url_for('index'))
-  else:
-    flash('Please do a re-check on form input')
-    return redirect(url_for('index'))
+
   return redirect(url_for('show_venue', venue_id=venue_id))
 
 #  Create Artist
@@ -431,11 +423,11 @@ def create_artist_submission():
       db.session.commit()
       # on successful db insert, flash success
       flash('Artist ' + request.form['name'] + ' was successfully listed!')
-      return redirect(url_for('index'))
     except:
+      db.session.rollback()
       # on unsuccessful db insert, flash an error instead.
       flash('ERROR!!!' + request.form['name'] + ' could not be listed.')
-      return redirect(url_for('index'))
+    return redirect(url_for('index'))
   else:
     flash('Please do a re-check on form input')
     return redirect(url_for('index'))
