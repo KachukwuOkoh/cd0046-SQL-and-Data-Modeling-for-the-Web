@@ -200,7 +200,7 @@ def create_venue_submission():
 	# 		print(request.form.getlist('genres'))
 	# 		new_venue = Venue(name=trace('name'), city=trace('city'), state=trace('state')
 	# 							phone=trace('phone'), genres=request.form.getlist('genres')
-	# 							) 
+	# 							)
 
 
   # on successful db insert, flash success
@@ -379,8 +379,30 @@ def edit_venue(venue_id):
 
 @app.route('/venues/<int:venue_id>/edit', methods=['POST'])
 def edit_venue_submission(venue_id):
-  # TODO: take values from the form submitted, and update existing
-  # venue record with ID <venue_id> using the new attributes
+  trace = request.form.get
+  deets = VenueForm(request.form)
+  if deets.validate():
+    try:
+      new_artist =Venue(name=trace('name'), city=trace('city'),
+                            state=trace('state'), address=trace('address'),
+                            phone=trace('phone'), image_link=trace('image_link'),
+                            genres=request.form.getlist('genres'),
+                            facebook_link=trace('facebook_link'),
+                            website_link=trace('website_link'),
+                            seeking_artist=trace('seeking_artist'),
+                            seeking_description=trace('seeking_description'))
+      db.session.add(new_artist)
+      db.session.commit()
+      # on successful db insert, flash success
+      flash('Artist ' + request.form['name'] + ' was successfully listed!')
+      return redirect(url_for('index'))
+    except:
+      # on unsuccessful db insert, flash an error instead.
+      flash('ERROR!!!' + request.form['name'] + ' could not be listed.')
+      return redirect(url_for('index'))
+  else:
+    flash('Please do a re-check on form input')
+    return redirect(url_for('index'))
   return redirect(url_for('show_venue', venue_id=venue_id))
 
 #  Create Artist
@@ -393,15 +415,30 @@ def create_artist_form():
 
 @app.route('/artists/create', methods=['POST'])
 def create_artist_submission():
-  # called upon submitting the new artist listing form
-  # TODO: insert form data as a new Venue record in the db, instead
-  # TODO: modify data to be the data object returned from db insertion
-
-  # on successful db insert, flash success
-  flash('Artist ' + request.form['name'] + ' was successfully listed!')
-  # TODO: on unsuccessful db insert, flash an error instead.
-  # e.g., flash('An error occurred. Artist ' + data.name + ' could not be listed.')
-  return render_template('pages/home.html')
+  trace = request.form.get
+  deets = ArtistForm(request.form)
+  if deets.validate():
+    try:
+      new_artist = Artist(name=trace('name'), city=trace('city'),
+                            state=trace('state'), phone=trace('phone'),
+                            genres=request.form.getlist('genres'),
+                            image_link=trace('image_link'),
+                            seeking_venue=trace('seeking_venue'),
+                            website_link=trace('website_link'),
+                            facebook_link=trace('facebook_link'),
+                            seeking_description=trace('seeking_description'))
+      db.session.add(new_artist)
+      db.session.commit()
+      # on successful db insert, flash success
+      flash('Artist ' + request.form['name'] + ' was successfully listed!')
+      return redirect(url_for('index'))
+    except:
+      # on unsuccessful db insert, flash an error instead.
+      flash('ERROR!!!' + request.form['name'] + ' could not be listed.')
+      return redirect(url_for('index'))
+  else:
+    flash('Please do a re-check on form input')
+    return redirect(url_for('index'))
 
 
 #  Shows
