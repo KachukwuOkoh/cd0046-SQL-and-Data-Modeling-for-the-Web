@@ -502,14 +502,14 @@ def create_show_submission():
       db.session.add(show)
       db.session.commit()
       # on successful db insert, flash success
-      flash('Artist ' + request.form['name'] + ' was successfully listed!')
+      flash('Show was successfully listed!')
     except:
       db.session.rollback()
       # on unsuccessful db insert, flash an error instead.
-      flash('ERROR!!!' + request.form['name'] + ' could not be listed.')
+      flash('ERROR! Show could not be listed.')
     return redirect(url_for('index'))
   else:
-    flash('Please do a re-check on form input')
+    flash('Please do a re-check on form before input')
     return redirect(url_for('index'))
 
 @app.errorhandler(404)
