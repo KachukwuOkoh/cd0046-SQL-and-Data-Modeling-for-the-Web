@@ -17,11 +17,11 @@ class Venue(db.Model):
     phone = db.Column(db.String(120))
     image_link = db.Column(db.String(500))
     genres = db.Column(db.ARRAY(db.String(120)), default=[])
-    date_added = db.Column(db.DateTime(), default=datetime.datetime.utcnow())
-    seeking_artist = db.Column(db.Boolean(), default=False)
-    website_link = db.Column(db.String(120), default=None)
     facebook_link = db.Column(db.String(120))
+    website_link = db.Column(db.String(120), default=None)
+    seeking_artist = db.Column(db.Boolean(), default=False)
     seeking_description = db.Column(db.String(200), default=None)
+    date_added = db.Column(db.DateTime(), default=datetime.datetime.utcnow())
     shows = db.relationship('Show', backref='venue', lazy=True)
 
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
@@ -35,13 +35,13 @@ class Artist(db.Model):
     city = db.Column(db.String(120))
     state = db.Column(db.String(120), nullable=False)
     phone = db.Column(db.String(120))
-    genres = db.Column(db.String(120))
+    genres = db.Column(db.ARRAY(db.String(120), default=[]))
     image_link = db.Column(db.String(500))
     seeking_venue = db.Column(db.Boolean(), default=False)
     website_link = db.Column(db.String(120), default=None)
     facebook_link = db.Column(db.String(120))
     seeking_description = db.Column(db.String(200), default=None)
-    shows = db.relationship('Show', backref='venue', lazy=True)
+    shows = db.relationship('Show', backref='artist', lazy=True)
 
 
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
