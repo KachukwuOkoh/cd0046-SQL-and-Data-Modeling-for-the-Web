@@ -1,3 +1,4 @@
+from turtle import backward
 from flask_sqlalchemy import SQLAlchemy
 import datetime
 
@@ -15,13 +16,13 @@ class Venue(db.Model):
     address = db.Column(db.String(120))
     phone = db.Column(db.String(120))
     image_link = db.Column(db.String(500))
-    genres = db.Column(db.ARRAY(db.String(100)), default=None)
+    genres = db.Column(db.ARRAY(db.String(120)), default=[])
+    date_added = db.Column(db.DateTime(), default=datetime.datetime.utcnow())
     seeking_artist = db.Column(db.Boolean(), default=False)
-	# seek_description = db.Column(db.String(200), default=None)
-	# date_added = db.Column(db.DateTime(), default=datetime.datetime.utcnow())
-	# website_link = db.Column(db.String(120), default=None)
-    # facebook_link = db.Column(db.String(120))
-	# shows = db.relationship('Show', backref='venue', lazy=True)
+    website_link = db.Column(db.String(120), default=None)
+    facebook_link = db.Column(db.String(120))
+    seeking_description = db.Column(db.String(200), default=None)
+    shows = db.relationship('Show', backref='venue', lazy=True)
 
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
 
@@ -36,6 +37,11 @@ class Artist(db.Model):
     phone = db.Column(db.String(120))
     genres = db.Column(db.String(120))
     image_link = db.Column(db.String(500))
+    seeking_venue = db.Column(db.Boolean(), default=False)
+    website_link = db.Column(db.String(120), default=None)
+    facebook_link = db.Column(db.String(120))
+    seeking_description = db.Column(db.String(200), default=None)
+    shows = db.relationship('Show', backref='venue', lazy=True)
 
 
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
