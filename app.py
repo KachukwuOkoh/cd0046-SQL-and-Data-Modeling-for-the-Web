@@ -493,11 +493,7 @@ def create_show_submission():
   deets = ArtistForm(request.form)
   if deets.validate():
     try:
-      artist_id = trace('artist_id')
-      venue_id = trace('venue_id'),
-      artist = Artist.query.get(artist_id)
-      venue_name = Venue.query.get(venue_id)
-      show = Show(artist_id=artist_id, venue_id=venue_id,
+      show = Show(artist_id=trace('artist_id'), venue_id=trace('venue_id'),
                   show_time=trace('start_time'))
       db.session.add(show)
       db.session.commit()
