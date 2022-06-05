@@ -61,16 +61,17 @@ def venues():
   # TODO: replace with real venues data.
   #       num_upcoming_shows should be aggregated based on number of upcoming shows per venue.
   data = []
-  venue = Venue.query.all()
-  locations = set()
-  for venue in venues:
-    locations.add((venue.city, venue.state))
-  for location in locations:
-    data.append({"city" : location[0], "state": location[1], "venues":[] })
-  for venue in venues:
-    for i in data:
-      if i["city"] == venue.city and i["state"] == venue.state:
-        
+  # venue = Venue.query.all()
+  # locations = set()
+  # for venue in venues:
+  #   locations.add((venue.city, venue.state))
+  # for location in locations:
+  #   data.append({"city" : location[0], "state": location[1], "venues":[] })
+  # for venue in venues:
+  #   for i in data:
+  #     if i["city"] == venue.city and i["state"] == venue.state:
+
+
 
   return render_template('pages/venues.html', areas=data)
 
