@@ -19,7 +19,7 @@ class Venue(db.Model):
     genres = db.Column(db.ARRAY(db.String(120)))
     facebook_link = db.Column(db.String(120))
     website_link = db.Column(db.String(120), default=None)
-    seeking_artist = db.Column(db.Boolean(), default=False)
+    seeking_talent = db.Column(db.Boolean(), default=False)
     seeking_description = db.Column(db.String(200), default=None)
     date_added = db.Column(db.DateTime(), default=datetime.datetime.utcnow())
     shows = db.relationship('Show', backref='venue', lazy=True)

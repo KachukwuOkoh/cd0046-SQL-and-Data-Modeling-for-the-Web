@@ -25,9 +25,6 @@ db.init_app(app)
 migrate = Migrate(app, db)
 
 
-# TODO: connect to a local postgresql database
-
-
 #----------------------------------------------------------------------------#
 # Filters.
 #----------------------------------------------------------------------------#
@@ -83,7 +80,7 @@ def venues():
       "num_upcoming_shows": 0,
     }]
   }]
-  return render_template('pages/venues.html', areas=data);
+  return render_template('pages/venues.html', areas=data)
 
 @app.route('/venues/search', methods=['POST'])
 def search_venues():
@@ -207,18 +204,17 @@ def create_venue_submission():
                             genres=request.form.getlist('genres'),
                             facebook_link=trace('facebook_link'),
                             website_link=trace('website_link'),
-                            seeking_artist=trace.seeking_talent.data,
+                            seeking_talent=trace.seeking_talent.data,
                             seeking_description=trace('seeking_description'))
       db.session.add(new_venue)
       db.session.commit()
       # on successful db insert, flash success
       flash('Venue ' + request.form['name'] + ' was successfully listed!')
-      return redirect(url_for('index'))
     except:
       # on unsuccessful db insert, flash an error instead.
       db.session.rollback()
       flash('ERROR!!!' + request.form['name'] + ' could not be listed.')
-      return redirect(url_for('index'))
+    return redirect(url_for('index'))
   else:
     flash('Please do a re-check on form input')
     return redirect(url_for('index'))
@@ -394,8 +390,26 @@ def edit_venue(venue_id):
 
 @app.route('/venues/<int:venue_id>/edit', methods=['POST'])
 def edit_venue_submission(venue_id):
+  venue = Venue.query.get(venue_id)
+  deets = VenueForm(request.form)
+  if deets.validate():
+    venue.name = deets.name.data
+    venue.phone = deets.phone.data
+    venue.city = deets.city.data
+    venue.state = deets.state.data
+    venue.address = deets.address.data
+    venue.genres = deets.genres.data
+    venue.image_link = deets.image_link.data
+    venue.website_link = deets.website_link.data
+    venue.seeking_talent = deets.seeking_talent.data
+    venue.seeking_description = deets.seeking_description.data
+    db.session.commit()
+    return redirect(url_for('show_venue', venue_id=venue_id))
+  else:
+    flash(f'Do a re-check on submissions')
+    return redirect(url_for('show_venue', venue_id=venue_id))
 
-  return redirect(url_for('show_venue', venue_id=venue_id))
+
 
 #  Create Artist
 #  ----------------------------------------------------------------
