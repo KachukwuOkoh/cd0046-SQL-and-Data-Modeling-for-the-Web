@@ -61,17 +61,20 @@ def venues():
   # TODO: replace with real venues data.
   #       num_upcoming_shows should be aggregated based on number of upcoming shows per venue.
   data = []
-  # venue = Venue.query.all()
-  # locations = set()
-  # for venue in venues:
-  #   locations.add((venue.city, venue.state))
-  # for location in locations:
-  #   data.append({"city" : location[0], "state": location[1], "venues":[] })
-  # for venue in venues:
-  #   for i in data:
-  #     if i["city"] == venue.city and i["state"] == venue.state:
-
-
+  venues = Venue.query.all()
+  locations = set()
+  for venue in venues:
+    locations.add((venue.city, venue.state))
+  for location in locations:
+    data.append({"city" : location[0], "state": location[1], "venues":[] })
+  for venue in venues:
+    for i in data:
+      if i["city"] == venue.city and i["state"] == venue.state:
+        upcoming_shows = Show.query.join(Venue).filter(Venue.id == venue.id).filter(
+                          Show.show_time > datetime.utcnow)
+        i['venues'].append(
+        {'id': venue.id, 'name': venue.name, 'num_upcoming_shows': upcoming_shows.count()})
+        break
 
   return render_template('pages/venues.html', areas=data)
 
@@ -169,7 +172,7 @@ def artists():
 @app.route('/artists/search', methods=['POST'])
 def search_artists():
   # TODO: implement search on artists with partial string search. Ensure it is case-insensitive.
-  # seach for "A" should return "Guns N Petals", "Matt Quevado", and "The Wild Sax Band".
+  # search for "A" should return "Guns N Petals", "Matt Quevado", and "The Wild Sax Band".
   # search for "band" should return "The Wild Sax Band".
   search_word = request.form.get('search_term')
   search_result = (Artist.query.filter((Artist.city.ilike('%'+ search_word +'%') |
@@ -312,42 +315,7 @@ def create_artist_submission():
 def shows():
   # displays list of shows at /shows
   # TODO: replace with real venues data.
-  data=[{
-    "venue_id": 1,
-    "venue_name": "The Musical Hop",
-    "artist_id": 4,
-    "artist_name": "Guns N Petals",
-    "artist_image_link": "https://images.unsplash.com/photo-1549213783-8284d0336c4f?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=300&q=80",
-    "start_time": "2019-05-21T21:30:00.000Z"
-  }, {
-    "venue_id": 3,
-    "venue_name": "Park Square Live Music & Coffee",
-    "artist_id": 5,
-    "artist_name": "Matt Quevedo",
-    "artist_image_link": "https://images.unsplash.com/photo-1495223153807-b916f75de8c5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=334&q=80",
-    "start_time": "2019-06-15T23:00:00.000Z"
-  }, {
-    "venue_id": 3,
-    "venue_name": "Park Square Live Music & Coffee",
-    "artist_id": 6,
-    "artist_name": "The Wild Sax Band",
-    "artist_image_link": "https://images.unsplash.com/photo-1558369981-f9ca78462e61?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=794&q=80",
-    "start_time": "2035-04-01T20:00:00.000Z"
-  }, {
-    "venue_id": 3,
-    "venue_name": "Park Square Live Music & Coffee",
-    "artist_id": 6,
-    "artist_name": "The Wild Sax Band",
-    "artist_image_link": "https://images.unsplash.com/photo-1558369981-f9ca78462e61?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=794&q=80",
-    "start_time": "2035-04-08T20:00:00.000Z"
-  }, {
-    "venue_id": 3,
-    "venue_name": "Park Square Live Music & Coffee",
-    "artist_id": 6,
-    "artist_name": "The Wild Sax Band",
-    "artist_image_link": "https://images.unsplash.com/photo-1558369981-f9ca78462e61?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=794&q=80",
-    "start_time": "2035-04-15T20:00:00.000Z"
-  }]
+  data=[]
   return render_template('pages/shows.html', shows=data)
 
 @app.route('/shows/create')
