@@ -2,12 +2,12 @@
 # Imports
 #----------------------------------------------------------------------------#
 
+
 import json , sys
 import dateutil.parser
 import babel
 import logging
 from flask import Flask, render_template, request, Response, flash, redirect, url_for
-import flask
 from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -31,7 +31,7 @@ migrate = Migrate(app, db)
 #----------------------------------------------------------------------------#
 
 def format_datetime(value, format='medium'):
-  date = dateutil.parser.parse(value)
+  date = dateutil.parser.parse(str(value))
   if format == 'full':
       format="EEEE MMMM, d, y 'at' h:mma"
   elif format == 'medium':
@@ -112,36 +112,48 @@ def create_venue_form():
 
 @app.route('/venues/create', methods=['POST'])
 def create_venue_submission():
-
   # TODO: insert form data as a new Venue record in the db, instead
   # TODO: modify data to be the data object returned from db insertion
-  trace = request.form.get
+  # trace = request.form.get
   form = VenueForm(request.form)
-  if form.validate():
-    try:
-      new_venue =Venue(name=trace('name'), city=trace('city'),
-                            state=trace('state'), address=trace('address'),
-                            phone=trace('phone'), image_link=trace('image_link'),
-                            genres=request.form.getlist('genres'),
-                            facebook_link=trace('facebook_link'),
-                            website_link=trace('website_link'),
-                            seeking_talent=trace.seeking_talent.data,
-                            seeking_description=trace('seeking_description'))
-      db.session.add(list(new_venue))
-      db.session.commit()
+  # if form.validate():
+  try:
+    vname=form.name.data
+    vcity=form.city.data
+    vstate=form.state.data
+    vaddress=form.address.data
+    vphone=form.phone.data
+    vimage_link=form.image_link.data
+    vgenres=form.genres.data
+    vfacebook_link=form.facebook_link.data
+    vwebsite_link=form.website_link.data
+    vseeking_talent=form.seeking_talent.data
+    vseeking_description=form.seeking_description.data
+
+    name_check = Venue.query.filter_by(name=vname).all()
+    if name_check:
+      new_venue = Venue(name=vname, city=vcity, state=vstate, address=vaddress,
+                          phone=vphone, image_link=vimage_link,genres=vgenres,
+                          facebook_link=vfacebook_link, website_link=vwebsite_link,
+                          seeking_talent=vseeking_talent, seeking_description=vseeking_description)
       # on successful db insert, flash success
-      # flash({sys.exc_info()})
+      db.session.add(new_venue)
+      db.session.commit()
+      flash({sys.exc_info()})
       flash('Venue ' + request.form['name'] + ' was successfully listed!')
-    except:
-      # on unsuccessful db insert, flash an error instead.
-      db.session.rollback()
-      # flash({sys.exc_info()})
-      flash('ERROR!!!' + request.form['name'] + ' could not be listed.')
-    return redirect(url_for('index'))
-  else:
+  except:
+    error = True
+    # on unsuccessful db insert, flash an error instead.
+    db.session.rollback()
     print({sys.exc_info()})
-    flash('Please do a re-check on form input')
+    flash('ERROR!!! ' + request.form['name'] + ' could not be listed.')
+  finally:
+    db.session.close()
     return redirect(url_for('index'))
+  # else:
+  #   flash({sys.exc_info()})
+  #   flash('Please do a re-check on form input')
+  #   return render_template('pages/venues.html')
 
 
 
@@ -168,8 +180,23 @@ def delete_venue(venue_id):
 @app.route('/artists')
 def artists():
   # TODO: replace with real data returned from querying the database
+  data = []
+  artists = Artist.query.all()
+  locations = set()
+  for artist in artists:
+    locations.add((artist.city, artist.state))
+  for location in locations:
+    data.append({"city" : location[0], "state": location[1], "venues":[] })
+  for artist in artists:
+    for i in data:
+      if i["city"] == artist.city and i["state"] == artist.state:
+        upcoming_shows = Show.query.join(Artist).filter(Artist.id == artist.id).filter(
+                          Show.show_time > datetime.utcnow)
+        i['venues'].append(
+        {'id': artist.id, 'name': artist.name, 'num_upcoming_shows': upcoming_shows.count()})
+        break
 
-  return render_template('pages/artists.html', artists=Artist.query.all())
+  return render_template('pages/artists.html', artists=data)
 
 
 @app.route('/artists/search', methods=['POST'])
@@ -321,7 +348,7 @@ def shows():
   # data=[]
   return render_template('pages/shows.html', shows=Show.query.all())
 
-@app.route('/shows/create')
+@app.route('/shows/create', methods=['GET'])
 def create_shows():
   # renders form. do not touch.
   form = ShowForm()
