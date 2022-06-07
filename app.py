@@ -2,7 +2,7 @@
 # Imports
 #----------------------------------------------------------------------------#
 
-import json
+import json , sys
 import dateutil.parser
 import babel
 import logging
@@ -116,8 +116,8 @@ def create_venue_submission():
   # TODO: insert form data as a new Venue record in the db, instead
   # TODO: modify data to be the data object returned from db insertion
   trace = request.form.get
-  deets = VenueForm(request.form)
-  if deets.validate():
+  form = VenueForm(request.form)
+  if form.validate():
     try:
       new_venue =Venue(name=trace('name'), city=trace('city'),
                             state=trace('state'), address=trace('address'),
@@ -127,16 +127,19 @@ def create_venue_submission():
                             website_link=trace('website_link'),
                             seeking_talent=trace.seeking_talent.data,
                             seeking_description=trace('seeking_description'))
-      db.session.add(new_venue)
+      db.session.add(list(new_venue))
       db.session.commit()
       # on successful db insert, flash success
+      # flash({sys.exc_info()})
       flash('Venue ' + request.form['name'] + ' was successfully listed!')
     except:
       # on unsuccessful db insert, flash an error instead.
       db.session.rollback()
+      # flash({sys.exc_info()})
       flash('ERROR!!!' + request.form['name'] + ' could not be listed.')
     return redirect(url_for('index'))
   else:
+    print({sys.exc_info()})
     flash('Please do a re-check on form input')
     return redirect(url_for('index'))
 
@@ -283,8 +286,8 @@ def create_artist_form():
 @app.route('/artists/create', methods=['POST'])
 def create_artist_submission():
   trace = request.form.get
-  deets = ArtistForm(request.form)
-  if deets.validate():
+  form = ArtistForm(request.form)
+  if form.validate():
     try:
       new_artist = Artist(name=trace('name'), city=trace('city'),
                             state=trace('state'), phone=trace('phone'),
@@ -315,8 +318,8 @@ def create_artist_submission():
 def shows():
   # displays list of shows at /shows
   # TODO: replace with real venues data.
-  data=[]
-  return render_template('pages/shows.html', shows=data)
+  # data=[]
+  return render_template('pages/shows.html', shows=Show.query.all())
 
 @app.route('/shows/create')
 def create_shows():
