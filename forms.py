@@ -13,7 +13,7 @@ class ShowForm(Form):
     start_time = DateTimeField(
         'start_time',
         validators=[DataRequired()],
-        # default= datetime.today()
+         default= datetime.today()
     )
 
 class VenueForm(Form):
@@ -88,7 +88,7 @@ class VenueForm(Form):
 		message="Invalid phone number format : xxx-xxx-xxxx")]
     )
     image_link = StringField(
-        'image_link'
+        'image_link', validators=[Optional()]
     )
     genres = SelectMultipleField(
         # TODO implement enum restriction
@@ -122,10 +122,10 @@ class VenueForm(Form):
         'website_link', validators=[Optional(), URL()]
     )
 
-    seeking_talent = BooleanField( 'seeking_talent' )
+    seeking_talent = BooleanField( 'seeking_talent', validators=[Optional()])
 
     seeking_description = StringField(
-        'seeking_description'
+        'seeking_description', validators=[Optional()]
     )
 
 
