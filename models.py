@@ -1,4 +1,3 @@
-from turtle import backward
 from flask_sqlalchemy import SQLAlchemy
 import datetime
 
@@ -24,6 +23,9 @@ class Venue(db.Model):
     date_added = db.Column(db.DateTime(), default=datetime.datetime.utcnow())
     shows = db.relationship('Show', backref='venue', lazy=True)
 
+    def __repr__(self) -> str:
+        return f'<Venue ID: {self.id}, name: {self.name}>'
+
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
 
 
@@ -45,6 +47,10 @@ class Artist(db.Model):
     shows = db.relationship('Show', backref='artist', lazy=True)
 
 
+    def __repr__(self) -> str:
+        return f'<Artist ID: {self.id}, name: {self.name}>'
+
+
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
 
 # TODO Implement Show and Artist models, and complete all model relationships and properties, as a database migration.
@@ -55,3 +61,6 @@ class Show(db.Model):
     artist_id = db.Column(db.Integer, db.ForeignKey('artists.id'))
     venue_id = db.Column(db.Integer, db.ForeignKey('venues.id'))
     show_time = db.Column(db.DateTime(), nullable=False)
+
+    def __repr__(self) -> str:
+        return f'<Show ID: {self.id}, time: {self.show_time}>'
